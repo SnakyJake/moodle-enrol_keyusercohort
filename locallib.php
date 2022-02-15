@@ -44,7 +44,7 @@ class enrol_keyusercohort_handler {
         global $DB, $CFG;
         require_once("$CFG->dirroot/group/lib.php");
 
-        if (!enrol_is_enabled('cohort')) {
+        if (!enrol_is_enabled('keyusercohort')) {
             return true;
         }
 
@@ -52,7 +52,7 @@ class enrol_keyusercohort_handler {
         $sql = "SELECT e.*, r.id as roleexists
                   FROM {enrol} e
              LEFT JOIN {role} r ON (r.id = e.roleid)
-                 WHERE e.customint1 = :cohortid AND e.enrol = 'cohort' AND e.status = :enrolstatus
+                 WHERE e.customint1 = :cohortid AND e.enrol = 'keyusercohort' AND e.status = :enrolstatus
               ORDER BY e.id ASC";
         $params['cohortid'] = $event->objectid;
         $params['enrolstatus'] = ENROL_INSTANCE_ENABLED;
@@ -60,7 +60,7 @@ class enrol_keyusercohort_handler {
             return true;
         }
 
-        $plugin = enrol_get_plugin('cohort');
+        $plugin = enrol_get_plugin('keyusercohort');
         foreach ($instances as $instance) {
             if ($instance->status != ENROL_INSTANCE_ENABLED ) {
                 // No roles for disabled instances.
@@ -95,11 +95,11 @@ class enrol_keyusercohort_handler {
         global $DB;
 
         // Does anything want to sync with this cohort?
-        if (!$instances = $DB->get_records('enrol', array('customint1'=>$event->objectid, 'enrol'=>'cohort'), 'id ASC')) {
+        if (!$instances = $DB->get_records('enrol', array('customint1'=>$event->objectid, 'enrol'=>'keyusercohort'), 'id ASC')) {
             return true;
         }
 
-        $plugin = enrol_get_plugin('cohort');
+        $plugin = enrol_get_plugin('keyusercohort');
         $unenrolaction = $plugin->get_config('unenrolaction', ENROL_EXT_REMOVED_UNENROL);
 
         foreach ($instances as $instance) {
@@ -130,11 +130,11 @@ class enrol_keyusercohort_handler {
         global $DB;
 
         // Does anything want to sync with this cohort?
-        if (!$instances = $DB->get_records('enrol', array('customint1'=>$event->objectid, 'enrol'=>'cohort'), 'id ASC')) {
+        if (!$instances = $DB->get_records('enrol', array('customint1'=>$event->objectid, 'enrol'=>'keyusercohort'), 'id ASC')) {
             return true;
         }
 
-        $plugin = enrol_get_plugin('cohort');
+        $plugin = enrol_get_plugin('keyusercohort');
         $unenrolaction = $plugin->get_config('unenrolaction', ENROL_EXT_REMOVED_UNENROL);
 
         foreach ($instances as $instance) {
@@ -163,7 +163,7 @@ function enrol_keyusercohort_sync(progress_trace $trace, $courseid = NULL) {
     require_once("$CFG->dirroot/group/lib.php");
 
     // Purge all roles if cohort sync disabled, those can be recreated later here by cron or CLI.
-    if (!enrol_is_enabled('cohort')) {
+    if (!enrol_is_enabled('keyusercohort')) {
         $trace->output('Cohort sync plugin is disabled, unassigning all plugin roles and stopping.');
         role_unassign_all(array('component'=>'enrol_keyusercohort'));
         return 2;
@@ -178,7 +178,7 @@ function enrol_keyusercohort_sync(progress_trace $trace, $courseid = NULL) {
     $allroles = get_all_roles();
     $instances = array(); //cache
 
-    $plugin = enrol_get_plugin('cohort');
+    $plugin = enrol_get_plugin('keyusercohort');
     $unenrolaction = $plugin->get_config('unenrolaction', ENROL_EXT_REMOVED_UNENROL);
 
 
@@ -186,7 +186,7 @@ function enrol_keyusercohort_sync(progress_trace $trace, $courseid = NULL) {
     $onecourse = $courseid ? "AND e.courseid = :courseid" : "";
     $sql = "SELECT cm.userid, e.id AS enrolid, ue.status
               FROM {cohort_members} cm
-              JOIN {enrol} e ON (e.customint1 = cm.cohortid AND e.enrol = 'cohort' AND e.status = :enrolstatus $onecourse)
+              JOIN {enrol} e ON (e.customint1 = cm.cohortid AND e.enrol = 'keyusercohort' AND e.status = :enrolstatus $onecourse)
               JOIN {user} u ON (u.id = cm.userid AND u.deleted = 0)
          LEFT JOIN {user_enrolments} ue ON (ue.enrolid = e.id AND ue.userid = cm.userid)
              WHERE ue.id IS NULL OR ue.status = :suspended";
@@ -214,7 +214,7 @@ function enrol_keyusercohort_sync(progress_trace $trace, $courseid = NULL) {
     // Unenrol as necessary.
     $sql = "SELECT ue.*, e.courseid
               FROM {user_enrolments} ue
-              JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'cohort' $onecourse)
+              JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'keyusercohort' $onecourse)
          LEFT JOIN {cohort_members} cm ON (cm.cohortid = e.customint1 AND cm.userid = ue.userid)
              WHERE cm.id IS NULL";
     $rs = $DB->get_recordset_sql($sql, array('courseid'=>$courseid));
@@ -246,7 +246,7 @@ function enrol_keyusercohort_sync(progress_trace $trace, $courseid = NULL) {
     $onecourse = $courseid ? "AND e.courseid = :courseid" : "";
     $sql = "SELECT e.roleid, ue.userid, c.id AS contextid, e.id AS itemid, e.courseid
               FROM {user_enrolments} ue
-              JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'cohort' AND e.status = :statusenabled $onecourse)
+              JOIN {enrol} e ON (e.id = ue.enrolid AND e.enrol = 'keyusercohort' AND e.status = :statusenabled $onecourse)
               JOIN {role} r ON (r.id = e.roleid)
               JOIN {context} c ON (c.instanceid = e.courseid AND c.contextlevel = :coursecontext)
               JOIN {user} u ON (u.id = ue.userid AND u.deleted = 0)
@@ -271,7 +271,7 @@ function enrol_keyusercohort_sync(progress_trace $trace, $courseid = NULL) {
     $sql = "SELECT ra.roleid, ra.userid, ra.contextid, ra.itemid, e.courseid
               FROM {role_assignments} ra
               JOIN {context} c ON (c.id = ra.contextid AND c.contextlevel = :coursecontext)
-              JOIN {enrol} e ON (e.id = ra.itemid AND e.enrol = 'cohort' $onecourse)
+              JOIN {enrol} e ON (e.id = ra.itemid AND e.enrol = 'keyusercohort' $onecourse)
          LEFT JOIN {user_enrolments} ue ON (ue.enrolid = e.id AND ue.userid = ra.userid AND ue.status = :useractive)
              WHERE ra.component = 'enrol_keyusercohort' AND (ue.id IS NULL OR e.status <> :statusenabled)";
     $params = array();
