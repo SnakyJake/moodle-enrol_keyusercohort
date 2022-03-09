@@ -114,9 +114,12 @@ class enrol_keyusercohort_plugin extends enrol_plugin {
         if (!empty($fields['customint2']) && $fields['customint2'] == KEYUSER_COHORT_CREATE_GROUP) {
             // Create a new group for the cohort if requested.
             $context = context_course::instance($course->id);
-            require_capability('moodle/course:managegroups', $context);
-            $groupid = enrol_keyusercohort_create_new_group($course->id, $fields['customint1']);
-            $fields['customint2'] = $groupid;
+            if (has_capability('moodle/course:managegroups', $context) || has_capability('enrol/keyuser:managegroups', $context)) {
+                $groupid = enrol_keyusercohort_create_new_group($course->id, $fields['customint1']);
+                $fields['customint2'] = $groupid;
+            } else {
+                require_capability('enrol/keyuser:managegroups', $context);
+            }
         }
 
         $result = parent::add_instance($course, $fields);
@@ -152,9 +155,12 @@ class enrol_keyusercohort_plugin extends enrol_plugin {
         }
         // Create a new group for the cohort if requested.
         if ($data->customint2 == KEYUSER_COHORT_CREATE_GROUP) {
-            require_capability('moodle/course:managegroups', $context);
-            $groupid = enrol_keyusercohort_create_new_group($instance->courseid, $data->customint1);
-            $data->customint2 = $groupid;
+            if (has_capability('moodle/course:managegroups', $context) || has_capability('enrol/keyuser:managegroups', $context)) {
+                $groupid = enrol_keyusercohort_create_new_group($instance->courseid, $data->customint1);
+                $data->customint2 = $groupid;
+            } else {
+                require_capability('enrol/keyuser:managegroups', $context);
+            }
         }
 
         $result = parent::update_instance($instance, $data);
@@ -395,7 +401,7 @@ class enrol_keyusercohort_plugin extends enrol_plugin {
      */
     protected function get_group_options($coursecontext) {
         $groups = array(0 => get_string('none'));
-        if (has_capability('moodle/course:managegroups', $coursecontext)) {
+        if (has_capability('moodle/course:managegroups', $coursecontext) || has_capability('enrol/keyuser:managegroups', $coursecontext)) {
             $groups[KEYUSER_COHORT_CREATE_GROUP] = get_string('creategroup', 'enrol_keyusercohort');
         }
 
@@ -424,12 +430,31 @@ class enrol_keyusercohort_plugin extends enrol_plugin {
      * @return bool
      */
     public function edit_instance_form($instance, MoodleQuickForm $mform, $coursecontext) {
-        $mform->addElement('text', 'name', get_string('custominstancename', 'enrol'));
+        global $SESSION;
+
+        $mform->addElement('text', 'name', get_string('custominstancename', 'enrol',['class'=>'ignoredirty']));
         $mform->setType('name', PARAM_TEXT);
 
         $options = $this->get_status_options();
         $mform->addElement('select', 'status', get_string('status', 'enrol_keyusercohort'), $options);
 
+        if (!$instance->id) {
+            $prefix_options = keyuser_cohort_prefix_options_for_select();
+            foreach($prefix_options as $inputname => $prefix_option){
+                if(is_array($prefix_option) && count($prefix_option)>1){
+                    $attr['onchange'] = '
+                        document.getElementById("id_customint1").value="";
+                        M.core_formchangechecker.stateinformation.formchanged = false;
+                        this.form.submit();';
+                    $attr['class'] = 'ignoredirty';
+                    $mform->addElement('select', $inputname, get_string("label_cohort_prefix_select", "local_keyuser"),$prefix_option,$attr);
+                    if(array_key_exists($inputname,$SESSION)){
+                        $mform->setDefault($inputname, $SESSION->$inputname);
+                    }
+                }
+            }
+        }
+        
         $options = ['contextid' => $coursecontext->id, 'multiple' => false];
         $mform->addElement('keyusercohort', 'customint1', get_string('cohort', 'cohort'), $options);
 
