@@ -24,10 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2022030900;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2022030901;        // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2021051700;        // Requires this Moodle version
 $plugin->component = 'enrol_keyusercohort';    // Full name of the plugin (used for diagnostics)
 $plugin->dependencies = array(
-    'local_keyuser' => 2022021600,   // Keyuser-Plugin must be installed.
+    'local_keyuser' => 2022030901,   // Keyuser-Plugin must be installed.
 );
 
