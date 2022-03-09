@@ -25,6 +25,7 @@
 $string['addgroup'] = 'Add to group';
 $string['assignrole'] = 'Assign role';
 $string['keyusercohort:config'] = 'Configure cohort instances';
+$string['keyusercohort:managegroups'] = get_string("course:managegroups","role");
 $string['keyusercohort:unenrol'] = 'Unenrol suspended users';
 $string['defaultgroupnametext'] = '{$a->name} cohort {$a->increment}';
 $string['enrolcohortsynctask'] = 'Cohort enrolment sync task';

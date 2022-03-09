@@ -30,10 +30,14 @@ $capabilities = array(
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW,
-        )
+        'clonepermissionsfrom' => 'enrol/cohort:config',
+    ),
+
+    'enrol/keyusercohort:managegroups' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'clonepermissionsfrom' => 'moodle/course:managegroups',
     ),
 
     /* This is used only when sync suspends users instead of full unenrolment. */
@@ -41,9 +45,7 @@ $capabilities = array(
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'manager' => CAP_ALLOW,
-        )
+        'clonepermissionsfrom' => 'enrol/cohort:unenrol',
     ),
 
 );

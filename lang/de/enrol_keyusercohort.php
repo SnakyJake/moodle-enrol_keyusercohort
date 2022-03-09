@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['addgroup'] = 'Zu Gruppe hinzufügen';
 $string['assignrole'] = 'Rolle zuordnen';
 $string['keyusercohort:config'] = 'Globale Gruppen (Keyuser) konfigurieren';
+$string['keyusercohort:managegroups'] = get_string("course:managegroups","role");
 $string['keyusercohort:unenrol'] = 'Gesperrte Nutzer/innen abmelden';
 $string['creategroup'] = 'Neue Gruppe anlegen';
 $string['defaultgroupnametext'] = '{$a->name} Globale Gruppe {$a->increment}';
