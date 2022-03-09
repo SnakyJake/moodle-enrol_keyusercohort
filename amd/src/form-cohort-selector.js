@@ -18,7 +18,6 @@
  *
  * @module     local/keyuser/form-keyusercohort-selector
  * @class      form-keyusercohort-selector
- * @package    local_keyuser
  * @copyright  2021 Jakob Heinemann, 2016 Damyon Wiese <damyon@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      3.1
@@ -42,6 +41,7 @@ define(['core/ajax', 'jquery'], function(ajax, $) {
         },
 
         transport: function(selector, query, success, failure) {
+
             var el = $(selector);
 
             // Parse some data-attributes from the form element.
