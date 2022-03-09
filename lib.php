@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 define('KEYUSER_COHORT_CREATE_GROUP', -1);
 
 require_once($CFG->dirroot . '/local/keyuser/locallib.php');
+require_once($CFG->dirroot . '/local/keyuser/lib/accesslib.php');
 
 /**
  * Cohort enrolment plugin implementation.
@@ -377,7 +378,7 @@ class enrol_keyusercohort_plugin extends enrol_plugin {
     protected function get_role_options($instance, $coursecontext) {
         global $DB;
 
-        $roles = get_assignable_roles($coursecontext, ROLENAME_BOTH);
+        $roles = keyuser_get_assignable_roles($coursecontext, ROLENAME_BOTH);
         $roles[0] = get_string('none');
         $roles = array_reverse($roles, true); // Descending default sortorder.
 
