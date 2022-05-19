@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 define('KEYUSER_COHORT_CREATE_GROUP', -1);
 
 require_once($CFG->dirroot . '/local/keyuser/locallib.php');
+require_once($CFG->dirroot . '/local/keyuser/recordlib.php');
 require_once($CFG->dirroot . '/local/keyuser/lib/accesslib.php');
 
 /**
@@ -66,14 +67,11 @@ class enrol_keyusercohort_plugin extends enrol_plugin {
 
         } else if (empty($instance->name)) {
             $enrol = $this->get_name();
-            $cohort = $DB->get_record('cohort', array('id'=>$instance->customint1));
+            $cohort = keyuser_cohort_get_record($instance->customint1);
             if (!$cohort) {
                 return get_string('pluginname', 'enrol_'.$enrol);
             }
-            if(!is_siteadmin()){
-                keyuser_cohort_remove_prefix($cohort->name);
-            }
-            $cohortname = format_string($cohort->name, true, array('context'=>context::instance_by_id($cohort->contextid)));
+            $cohortname = format_string(is_siteadmin() ? $cohort->realname : $cohort->name, true, array('context'=>context::instance_by_id($cohort->contextid)));
             if ($role = $DB->get_record('role', array('id'=>$instance->roleid))) {
                 $role = role_get_name($role, context_course::instance($instance->courseid, IGNORE_MISSING), ROLENAME_BOTH);
                 return get_string('pluginname', 'enrol_'.$enrol) . ' (' . $cohortname . ' - ' . $role .')';
@@ -344,14 +342,14 @@ class enrol_keyusercohort_plugin extends enrol_plugin {
      * @return array
      */
     protected function get_cohort_options($instance, $context) {
-        global $DB, $CFG;
+        global $CFG;
 
         require_once($CFG->dirroot . '/local/keyuser/cohort/lib.php');
 
         $cohorts = array();
 
         if ($instance->id) {
-            if ($cohort = $DB->get_record('cohort', array('id' => $instance->customint1))) {
+            if ($cohort = keyuser_cohort_get_record($instance->customint1)) {
                 $name = format_string($cohort->name, true, array('context' => context::instance_by_id($cohort->contextid)));
                 $cohorts = array($instance->customint1 => $name);
             } else {
@@ -359,7 +357,6 @@ class enrol_keyusercohort_plugin extends enrol_plugin {
             }
         } else {
             $cohorts = array('' => get_string('choosedots'));
-            
             $allcohorts = keyuser_cohort_get_available_cohorts($context, 0, 0, 0);
             foreach ($allcohorts as $c) {
                 $cohorts[$c->id] = format_string($c->name);
@@ -455,7 +452,7 @@ class enrol_keyusercohort_plugin extends enrol_plugin {
                 }
             }
         }
-        
+
         $options = ['contextid' => $coursecontext->id, 'multiple' => false];
         $mform->addElement('keyusercohort', 'customint1', get_string('cohort', 'cohort'), $options);
 
@@ -539,8 +536,7 @@ function enrol_keyusercohort_create_new_group($courseid, $cohortid) {
 
     require_once($CFG->dirroot . '/group/lib.php');
 
-    $groupname = $DB->get_field('cohort', 'name', array('id' => $cohortid), MUST_EXIST);
-    keyuser_cohort_remove_prefix($groupname);
+    $groupname = keyuser_cohort_get_record($cohortid, MUST_EXIST)->name;
     $a = new stdClass();
     $a->name = $groupname;
     $a->increment = '';
