@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 define('KEYUSER_COHORT_CREATE_GROUP', -1);
 
-require_once($CFG->dirroot . '/local/keyuser/locallib.php');
+require_once($CFG->dirroot . '/local/keyuser/outputlib.php');
 require_once($CFG->dirroot . '/local/keyuser/recordlib.php');
 require_once($CFG->dirroot . '/local/keyuser/lib/accesslib.php');
 
