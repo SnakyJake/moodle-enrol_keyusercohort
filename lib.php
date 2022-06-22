@@ -438,15 +438,15 @@ class enrol_keyusercohort_plugin extends enrol_plugin {
 
         if (!$instance->id) {
             $prefix_options = keyuser_cohort_prefix_options_for_select();
-            foreach($prefix_options as $inputname => $prefix_option){
-                if(is_array($prefix_option) && count($prefix_option)>1){
+            foreach($prefix_options as $inputname => $prefix_option) {
+                if(is_array($prefix_option) && count($prefix_option) > 1) {
                     $attr['onchange'] = '
-                        document.getElementById("id_customint1").value="";
+                        document.getElementById("id_customint1").value = "";
                         M.core_formchangechecker.stateinformation.formchanged = false;
                         this.form.submit();';
                     $attr['class'] = 'ignoredirty';
-                    $mform->addElement('select', $inputname, get_string("label_cohort_prefix_select", "local_keyuser"),$prefix_option,$attr);
-                    if(array_key_exists($inputname,$SESSION)){
+                    $mform->addElement('select', $inputname, get_string("label_cohort_prefix_select", "local_keyuser"), $prefix_option, $attr);
+                    if(array_key_exists($inputname, $SESSION)) {
                         $mform->setDefault($inputname, $SESSION->$inputname);
                     }
                 }
